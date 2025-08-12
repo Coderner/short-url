@@ -1,10 +1,14 @@
 const express = require("express");
 const path = require("path");
 const {connectToMongoDb} = require("./connection");
+const URL = require("./models/url");
+const cookieParser = require("cookie-parser");
+const {restrictToLoggedInUserOnly, checkAuth} = require("./middlewares/auth");
+
 const urlRoute = require("./routes/url");
 const redirectRoute = require("./routes/redirect");
-const URL = require("./models/url");
 const staticRouter = require("./routes/staticRouter");
+const userRoute = require("./routes/user");
 
 const app = express();
 const PORT = 8001;
@@ -17,13 +21,14 @@ app.set("views", path.resolve("./views"));
 
 //middleware to support json data
 app.use(express.json());
-
 //middleware to support form data
 app.use(express.urlencoded({extended: false}));
+app.use(cookieParser());
 
-app.use("/",staticRouter);
-app.use("/url",urlRoute);
+app.use("/", checkAuth, staticRouter);
+app.use("/url",restrictToLoggedInUserOnly, urlRoute);
 app.use("/:shortId", redirectRoute);
+app.use("/user", userRoute);
 
 
 

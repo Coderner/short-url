@@ -9,7 +9,6 @@ async function handleRedirectRoute(req,res){
             visitHistory : {timestamp : Date.now()}
         }
     });
-    console.log(entry);
     res.redirect(entry?.redirectUrl);
 };
 
