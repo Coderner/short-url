@@ -3,7 +3,7 @@ const path = require("path");
 const {connectToMongoDb} = require("./connection");
 const URL = require("./models/url");
 const cookieParser = require("cookie-parser");
-const {restrictToLoggedInUserOnly, checkAuth} = require("./middlewares/auth");
+const {checkForAuthentication, restrictTo} = require("./middlewares/auth");
 
 const urlRoute = require("./routes/url");
 const redirectRoute = require("./routes/redirect");
@@ -24,9 +24,10 @@ app.use(express.json());
 //middleware to support form data
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
+app.use(checkForAuthentication);
 
-app.use("/", checkAuth, staticRouter);
-app.use("/url",restrictToLoggedInUserOnly, urlRoute);
+app.use("/", staticRouter);
+app.use("/url",restrictTo(["NORMAL","ADMIN"]), urlRoute);
 app.use("/:shortId", redirectRoute);
 app.use("/user", userRoute);
 
